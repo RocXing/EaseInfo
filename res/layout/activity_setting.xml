@@ -1,0 +1,328 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bootstrapbutton="http://schemas.android.com/apk/res-auto"
+    xmlns:fontawesometext="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_alignParentTop="true"
+        android:id="@+id/rlt">
+        
+        <com.beardedhen.androidbootstrap.FontAwesomeText
+            android:id="@+id/fontAwesomeText0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="33sp"
+            android:textColor="@color/bbutton_primary"
+            fontawesometext:fa_icon="fa-gear" 
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="23dp"
+        />
+        
+        <TextView
+            android:id="@+id/textView0"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="设置"
+            android:textColor="@color/bbutton_primary"
+            android:textSize="24sp"  
+            android:layout_marginLeft="4dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/fontAwesomeText0"
+        />
+        
+        <View
+			android:layout_height="0.5dp"	  
+		    android:layout_width="fill_parent"	   
+		    android:background="#663399"
+		    android:layout_below="@+id/textView0"
+		    android:layout_marginTop="20dp"/>
+        
+    </RelativeLayout>
+
+
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:id="@+id/rlb"
+        android:layout_below="@+id/rlt">
+
+        <com.beardedhen.androidbootstrap.FontAwesomeText
+            android:id="@+id/fontAwesomeText1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="30sp"
+            android:textColor="@color/bbutton_primary"
+            fontawesometext:fa_icon="fa-wifi" 
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+        />
+        
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="后台同步"
+            android:textColor="@color/bbutton_primary"
+            android:textSize="24sp"  
+            android:layout_marginLeft="2dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/fontAwesomeText1"
+        />
+        
+        <ToggleButton
+            android:id="@+id/togbtn1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="20dp"
+            android:background="@android:color/transparent"
+            android:button="@drawable/toggle_btn"
+            android:textColor="@color/bbutton_primary"
+            android:checked="true"
+            android:layout_centerVertical="true"
+            android:textOn="开"
+            android:textOff="关"
+            android:textSize="20sp"
+            android:layout_alignBottom="@+id/textView1"/>
+        
+        <View
+			android:layout_height="0.5dp"	  
+		    android:layout_width="fill_parent"	   
+		    android:background="#663399"
+		    android:layout_below="@+id/textView1"
+		    android:layout_marginTop="22dp"/>
+
+    </RelativeLayout>
+    
+    
+    <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:id="@+id/rl1"
+        android:layout_below="@+id/rlb">
+
+        <com.beardedhen.androidbootstrap.FontAwesomeText
+            android:id="@+id/fontAwesomeText2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="28sp"
+            android:textColor="@color/bbutton_primary"
+            fontawesometext:fa_icon="fa-envelope-o" 
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="22dp"
+        />
+        
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="短信同步"
+            android:textColor="@color/bbutton_primary"
+            android:textSize="24sp"  
+            android:layout_marginLeft="5dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/fontAwesomeText2"
+        />
+        
+        <ToggleButton
+            android:id="@+id/togbtn2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="20dp"
+            android:background="@android:color/transparent"
+            android:button="@drawable/toggle_btn"
+            android:textColor="@color/bbutton_primary"
+            android:checked="true"
+            android:layout_centerVertical="true"
+            android:textOn="开"
+            android:textOff="关"
+            android:textSize="20sp"
+            android:layout_alignBottom="@+id/textView2"/>
+
+    </RelativeLayout>
+    
+     <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="9dp"
+        android:id="@+id/rl2"
+        android:layout_below="@+id/rl1">
+
+        <com.beardedhen.androidbootstrap.FontAwesomeText
+            android:id="@+id/fontAwesomeText3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="28sp"
+            android:textColor="@color/bbutton_primary"
+            fontawesometext:fa_icon="fa-phone" 
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="23dp"
+        />
+        
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="来电同步"
+            android:textColor="@color/bbutton_primary"
+            android:textSize="24sp"  
+            android:layout_marginLeft="8dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/fontAwesomeText3"
+        />
+        
+        <ToggleButton
+            android:id="@+id/togbtn3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="20dp"
+            android:background="@android:color/transparent"
+            android:button="@drawable/toggle_btn"
+            android:textColor="@color/bbutton_primary"
+            android:checked="true"
+            android:layout_centerVertical="true"
+            android:textOn="开"
+            android:textOff="关"
+            android:textSize="20sp"
+            android:layout_alignBottom="@+id/textView3"/>
+
+    </RelativeLayout>
+    
+     <RelativeLayout
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="6dp"
+        android:id="@+id/rl3"
+        android:layout_below="@+id/rl2">
+
+        <com.beardedhen.androidbootstrap.FontAwesomeText
+            android:id="@+id/fontAwesomeText4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="26sp"
+            android:textColor="@color/bbutton_primary"
+            fontawesometext:fa_icon="fa-list-alt" 
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="23dp"
+        />
+        
+        <TextView
+            android:id="@+id/textView4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="通讯录同步"
+            android:textColor="@color/bbutton_primary"
+            android:textSize="24sp"
+            android:layout_marginLeft="3dp"
+            android:layout_centerVertical="true"
+            android:layout_toRightOf="@+id/fontAwesomeText4"
+        />
+        
+        <ToggleButton
+            android:id="@+id/togbtn4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            android:layout_marginRight="20dp"
+            android:background="@android:color/transparent"
+            android:button="@drawable/toggle_btn"
+            android:textColor="@color/bbutton_primary"
+            android:checked="true"
+            android:layout_centerVertical="true"
+            android:textOn="开"
+            android:textOff="关"
+            android:textSize="20sp"
+            android:layout_alignBottom="@+id/textView4"/>
+        
+        <View
+			android:layout_height="0.5dp"	  
+		    android:layout_width="fill_parent"	   
+		    android:background="#663399"
+		    android:layout_below="@+id/textView4"
+		    android:layout_marginTop="15dp"/>
+
+    </RelativeLayout>
+    
+    <RelativeLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+        android:padding="10dp"
+        android:id="@+id/brl">
+	     <com.beardedhen.androidbootstrap.BootstrapButton
+	            android:id="@+id/addresssyn"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_margin="3dp"
+	            android:text="同步通讯录"
+	            android:textSize="18sp"
+	            fontawesometext:bb_icon_left="fa-cloud-upload"
+	            fontawesometext:bb_roundedCorners="true"
+	            fontawesometext:bb_type="success" 
+	            android:layout_above="@+id/logout"
+	            android:layout_marginBottom="10dp">
+	    </com.beardedhen.androidbootstrap.BootstrapButton>
+	    
+	     <com.beardedhen.androidbootstrap.BootstrapButton
+	            android:id="@+id/logout"
+	            android:layout_width="match_parent"
+	            android:layout_height="wrap_content"
+	            android:layout_margin="3dp"
+	            android:text="注  销"
+	            android:textSize="18sp"
+	            fontawesometext:bb_icon_left="fa-caret-square-o-left"
+	            fontawesometext:bb_roundedCorners="true"
+	            fontawesometext:bb_type="danger" 
+	            android:layout_alignParentBottom="true">
+	    </com.beardedhen.androidbootstrap.BootstrapButton>
+
+	     <RelativeLayout
+	         android:layout_width="match_parent"
+	         android:layout_height="wrap_content"
+	         android:layout_above="@+id/addresssyn"
+	         android:layout_marginBottom="8dp" >
+
+	         <TextView
+	             android:id="@+id/msg1"
+	             android:layout_width="wrap_content"
+	             android:layout_height="wrap_content"
+	             android:layout_centerHorizontal="true"
+	             android:textColor="@color/bbutton_primary"
+	             android:textSize="18sp" />
+
+	         <TextView
+	             android:id="@+id/msg2"
+	             android:layout_below="@+id/msg1"
+	             android:layout_width="wrap_content"
+	             android:layout_height="wrap_content"
+	             android:layout_centerHorizontal="true"
+	             android:textColor="@color/bbutton_primary"
+	             android:textSize="18sp" />
+	     </RelativeLayout>
+
+    </RelativeLayout>
+    
+    
+</RelativeLayout>

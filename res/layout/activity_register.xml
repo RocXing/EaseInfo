@@ -1,0 +1,164 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:bootstrapbutton="http://schemas.android.com/apk/res-auto"
+    xmlns:fontawesometext="http://schemas.android.com/apk/res-auto"
+    android:layout_width="fill_parent"
+    android:layout_height="wrap_content"
+    android:padding="10dp" >
+    
+    
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_centerHorizontal="true"
+        android:text="EASEINFO"
+        android:textSize="35sp"
+        android:textStyle="bold"
+        android:textColor="@color/bbutton_primary" 
+        android:layout_marginTop="35dp"
+        android:layout_marginBottom="30dp"/>
+    
+	<com.beardedhen.androidbootstrap.BootstrapEditText
+        android:id="@+id/phonenumber"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/title"
+        android:layout_marginTop="15dp"
+        android:layout_marginLeft="3dp"
+        android:layout_marginRight="3dp"
+        android:layout_marginBottom="3dp"
+        android:ems="11"
+        android:gravity="center"
+        android:hint="手机号码"
+        android:inputType="phone"
+        android:textColor="@color/bbutton_info"
+        android:maxLength="11"
+        android:textSize="24sp"
+        fontawesometext:be_roundedCorners="true"
+        fontawesometext:be_state="success" >
+
+        <requestFocus />
+    </com.beardedhen.androidbootstrap.BootstrapEditText>
+
+    <com.beardedhen.androidbootstrap.BootstrapEditText
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/phonenumber"
+        android:layout_margin="3dp"
+        android:ems="21"
+        android:gravity="center"
+        android:hint="密码"
+        android:textColor="@color/bbutton_warning"
+        android:inputType="textPassword"
+        android:maxLength="21"
+        android:textSize="24sp"
+        fontawesometext:be_roundedCorners="true"
+        fontawesometext:be_state="success" />
+
+    <com.beardedhen.androidbootstrap.BootstrapEditText
+        android:id="@+id/confirm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/password"
+        android:layout_margin="3dp"
+        android:ems="21"
+        android:gravity="center"
+        android:hint="确认密码"
+        android:inputType="textPassword"
+        android:maxLength="21"
+        android:textColor="@color/bbutton_danger"
+        android:textSize="24sp"
+        fontawesometext:be_roundedCorners="true"
+        fontawesometext:be_state="success" />
+
+    <com.beardedhen.androidbootstrap.BootstrapEditText
+        android:id="@+id/code"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@+id/confirm"
+        android:layout_marginLeft="3dp"
+        android:layout_marginTop="7dp"
+        android:ems="5"
+        android:gravity="center"
+        android:hint="验证码"
+        android:inputType="number"
+        android:maxLength="6"
+        android:textColor="@color/bbutton_success"
+        android:textSize="22sp"
+        fontawesometext:be_roundedCorners="true"
+        fontawesometext:be_state="success" />
+    
+    <com.beardedhen.androidbootstrap.BootstrapButton
+            android:id="@+id/send"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="3dp"
+            android:layout_marginTop="3dp"
+            android:layout_below="@+id/confirm"
+            android:layout_alignParentRight="true"
+            android:text="发送验证码"
+            android:textSize="18sp"
+            fontawesometext:bb_icon_left="fa-envelope"
+            fontawesometext:bb_roundedCorners="true"
+            fontawesometext:bb_type="primary" >
+    </com.beardedhen.androidbootstrap.BootstrapButton>
+    
+    <com.beardedhen.androidbootstrap.BootstrapButton
+            android:id="@+id/register"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="3dp"
+            android:layout_marginRight="3dp"
+            android:layout_marginTop="9dp"
+            android:layout_below="@+id/send"
+            android:text="注  册"
+            android:textSize="18sp"
+            fontawesometext:bb_icon_left="fa-check-square-o"
+            fontawesometext:bb_roundedCorners="true"
+            fontawesometext:bb_type="success" >
+    </com.beardedhen.androidbootstrap.BootstrapButton>
+    
+    <com.beardedhen.androidbootstrap.FontAwesomeText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/phonenumber"
+        android:layout_margin="7dp"
+        android:textColor="@color/bbutton_info"
+        android:textSize="32sp"
+        fontawesometext:fa_icon="fa-mobile-phone" >
+        
+    </com.beardedhen.androidbootstrap.FontAwesomeText>
+    
+    <com.beardedhen.androidbootstrap.FontAwesomeText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/password"
+        android:layout_margin="5dp"
+        android:textColor="@color/bbutton_warning"
+        android:textSize="26sp"
+        fontawesometext:fa_icon="fa-chain" >
+    </com.beardedhen.androidbootstrap.FontAwesomeText>
+    
+    <com.beardedhen.androidbootstrap.FontAwesomeText
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/confirm"
+        android:layout_marginBottom="4dp"
+        android:layout_marginLeft="9dp"
+        android:textColor="@color/bbutton_danger"
+        android:textSize="26sp"
+        fontawesometext:fa_icon="fa-exclamation" >
+    </com.beardedhen.androidbootstrap.FontAwesomeText>
+    
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_centerHorizontal="true"
+        android:text="EASEINFO v1.0.0"
+        android:textColor="@color/bbutton_info" />
+    
+</RelativeLayout>

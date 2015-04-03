@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.easeinfo"
+    android:versionCode="1"
+    android:versionName="1.1" >
+
+    <uses-sdk
+        android:minSdkVersion="16"
+        android:targetSdkVersion="21" />
+	
+    <uses-permission android:name="android.permission.RECEIVE_SMS" />
+    <uses-permission android:name="android.permission.READ_SMS" />
+    <uses-permission android:name="android.permission.WRITE_CALL_LOG"/>
+   	<uses-permission android:name="android.permission.READ_CALL_LOG"/>
+   	<uses-permission android:name="android.permission.READ_CONTACTS"/>
+   	<uses-permission android:name="android.permission.WRITE_CONTACTS"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    
+    
+    <application
+        android:allowBackup="true"
+        android:icon="@drawable/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/AppTheme" 
+        android:persistent="true">
+        <activity
+            android:name="com.easeinfo.WelcomePage"
+            android:label="@string/app_name" 
+            android:screenOrientation="portrait">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+            
+        <activity android:name="com.easeinfo.Register" android:screenOrientation="portrait"></activity>
+        <activity android:name="com.easeinfo.Setting" android:screenOrientation="portrait"></activity>
+        <activity android:name="com.easeinfo.Login" android:screenOrientation="portrait"></activity>
+    	
+    	<!-- 开机广播接受者 -->
+        <receiver android:name="com.easeinfo.BootCompleteReceiver">
+        	<intent-filter>
+        		<!-- 注册开机广播地址-->
+        		<action android:name="android.intent.action.BOOT_COMPLETED"/>
+        		<category android:name="android.intent.category.DEFAULT" />
+        	</intent-filter>
+        </receiver>
+        
+        <!-- 消息推送服务 -->
+        <!--<service android:name="com.easeinfo.MonitorService"/>-->
+        <service android:name="com.easeinfo.SmsService"/>
+        <service android:name="com.easeinfo.MissedCallService"/>
+        <service android:name="com.easeinfo.TaskHandler"/>
+        
+    
+    </application>
+	
+    
+</manifest>
