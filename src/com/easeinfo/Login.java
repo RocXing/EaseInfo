@@ -28,6 +28,7 @@ import com.beardedhen.androidbootstrap.BootstrapEditText;
 import com.beardedhen.androidbootstrap.FontAwesomeText;
 
 public class Login extends Activity {
+	public String userphone;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +75,7 @@ public class Login extends Activity {
 					Toast.makeText(Login.this, "Length of password should between 5-25 in digits or letters", Toast.LENGTH_LONG).show();
 					return;
 				}
-				
+				userphone = mphone;
 				
 				map.put("phone", mphone);
 				map.put("password", mpassword);
@@ -103,6 +104,7 @@ public class Login extends Activity {
 				        			SharedPreferences sharedPreferences = getSharedPreferences(Config.DB_NAME, Context.MODE_PRIVATE);
 				        			Editor editor = sharedPreferences.edit();
 				        			editor.putString("token", token);
+				        			editor.putString(PushService.PREF_DEVICE_ID, userphone);
 				        			editor.commit();
 				        			finish();
 				        		}

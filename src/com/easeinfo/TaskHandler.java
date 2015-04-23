@@ -40,6 +40,10 @@ public class TaskHandler extends Service {
 	public static int UPLOAD_SMS = 1;
 	public static int UPLOAD_MISSED_CALL = 2;
 	public static int UPLOAD_ADDRESS_LIST = 3;
+	public static int UPLOAD_SMS_MISSED_CALL = 4;
+	
+	public Boolean smsSyn;
+	public Boolean phoneSyn;
 	
 	public RequestQueue requestQueue;
 	
@@ -63,19 +67,20 @@ public class TaskHandler extends Service {
 		String token = getUserToken();
 		SharedPreferences sharedPreferences = getSharedPreferences(Config.DB_NAME, Context.MODE_PRIVATE);
 		Boolean synConfig = sharedPreferences.getBoolean("SYN_CONFIG", true);
-		Boolean smsSyn = sharedPreferences.getBoolean("SMS_SYN", true);
-		Boolean phoneSyn = sharedPreferences.getBoolean("PHONE_SYN", true);
+		Boolean remoteConfig = sharedPreferences.getBoolean("REMOTE_CONFIG", true);
+		smsSyn = sharedPreferences.getBoolean("SMS_SYN", true);
+		phoneSyn = sharedPreferences.getBoolean("PHONE_SYN", true);
 		Boolean addressSyn = sharedPreferences.getBoolean("ADDRESS_SYN", true);
 		
-		if(token==null||!synConfig) return super.onStartCommand(intent, flags, startId);
+		if(token==null) return super.onStartCommand(intent, flags, startId);
 		
-		if(status == UPLOAD_SMS && smsSyn)
+		if(status == UPLOAD_SMS && synConfig && smsSyn)
 		{
 			Log.i("TAG", "sms.");
 			getSmsFromPhone();
 			SmsService.cleanAlarmManager();
 		}
-		else if(status == UPLOAD_MISSED_CALL && phoneSyn)
+		else if(status == UPLOAD_MISSED_CALL && synConfig && phoneSyn)
 		{
 			Log.i("TAG", "phone.");
 			getMissedCallFromPhone();
@@ -85,6 +90,10 @@ public class TaskHandler extends Service {
 		else if(status == UPLOAD_ADDRESS_LIST)
 		{
 			getAddressList();
+		}
+		else if(status == UPLOAD_SMS_MISSED_CALL && remoteConfig)
+		{
+			getSmsMissedCall();
 		}
 		else if(status == DEFAULT)
 		{
@@ -207,7 +216,9 @@ public class TaskHandler extends Service {
 					        return headers;
 					    }
 					};
-				requestQueue.add(jsonRequest);
+				if(isOpenNetwork()){
+					requestQueue.add(jsonRequest);
+				}
 			}
 		}
 		cur.close();
@@ -384,6 +395,150 @@ public class TaskHandler extends Service {
 			requestQueue.add(jsonRequest);}
 		else{
 			Toast.makeText(TaskHandler.this, "Network is not available", Toast.LENGTH_LONG).show();
+		}
+	}
+	
+	public void getSmsMissedCall()
+	{
+		
+		Map<String, JSONArray> mainmap = new HashMap<String, JSONArray>();  
+		
+		//smsSyn、phoneSyn
+		if(smsSyn)
+		{
+			Uri SMS_INBOX = Uri.parse("content://sms/");
+			String[] projection = new String[] { "address","body","person","date", "read" };//"_id", "address", "person",, "date", "type
+			String where = "date > "
+					+ (System.currentTimeMillis() - Config.UPLOAD_LATENCY * 1000);
+			ContentResolver cr = getContentResolver();
+			Cursor cur = cr.query(SMS_INBOX, projection, where, null, "date desc");
+			JSONArray jsonArray = new JSONArray();
+			if (null == cur)
+			{
+				Log.v("sms","empty");
+				
+			}
+			else
+			{
+				while(cur.moveToNext()) 
+				{
+					int read = cur.getInt(cur.getColumnIndex("read"));
+					if(read == 0)
+					{
+						
+						String number = cur.getString(cur.getColumnIndex("address"));//手机号
+						String name = cur.getString(cur.getColumnIndex("person"));//联系人姓名列表
+						String body = cur.getString(cur.getColumnIndex("body"));
+						String date = cur.getString(cur.getColumnIndex("date"));
+						
+						Log.v("number",number);
+						Log.v("date",date);
+						if(name == null){
+							name = "陌生人";
+						}
+						Log.v("name",name);
+						Log.v("body",body);
+						
+						Map<String, String> map = new HashMap<String, String>();  
+						map.put("sender_phone", number);
+						map.put("sender_name", name);
+						map.put("content", body);
+						map.put("status", "P");
+						map.put("date", date);
+						
+						JSONObject jsonObject = new JSONObject(map);
+						Log.d("jsonObject", jsonObject.toString());
+						jsonArray.put(jsonObject);
+						NumIncrease("SMS_SYN_NUM");
+					}
+				}
+				cur.close();
+			}
+			mainmap.put("smsList", jsonArray);
+		}
+		else{
+			mainmap.put("smsList", new JSONArray());
+		}
+		
+		if(phoneSyn){
+			String[] projection = new String[] {Calls.NUMBER, Calls.NEW, Calls.DATE, Calls.CACHED_NAME, Calls.DURATION};
+			String where = "type = 3 AND (date + duration) > "
+					+ (System.currentTimeMillis() - Config.UPLOAD_LATENCY * 1000);
+			ContentResolver cr = getContentResolver();
+			Cursor csr = cr.query(Calls.CONTENT_URI, projection, where, null, Calls.DEFAULT_SORT_ORDER);
+			JSONArray jsonArray = new JSONArray();
+			if (csr != null) 
+	        {
+	            while(csr.moveToNext()) 
+	            {
+	                int callnew = csr.getInt(csr.getColumnIndex(Calls.NEW));
+	                String number = csr.getString(csr.getColumnIndex(Calls.NUMBER));
+	                String date = csr.getString(csr.getColumnIndex(Calls.DATE));
+	                String name = csr.getString(csr.getColumnIndex(Calls.CACHED_NAME));
+	                
+	                Log.v("duration", csr.getString(csr.getColumnIndex(Calls.DURATION)));
+	                
+	                if(callnew == 1) {
+	                	Log.v("Missedcall", date + " you have a missed call from " + number);
+	                	if(name == null)
+	                		name = "陌生人";
+	                	Log.v("Missedcall",name);
+	                	
+	                	Map<String, String> map = new HashMap<String, String>();  
+	    				map.put("caller_phone", number);
+	    				map.put("caller_name", name);
+	    				map.put("status", "P");
+	    				map.put("date", date);
+	    				
+	    				JSONObject jsonObject = new JSONObject(map);
+	    				Log.d("jsonObject", jsonObject.toString());
+	    				jsonArray.put(jsonObject);
+	    				NumIncrease("PHONE_SYN_NUM");
+	    				
+	                }
+	            }
+	            // release resource
+	            csr.close();
+	        }
+			mainmap.put("callList", jsonArray);
+	        
+        }
+		else{
+			mainmap.put("callList", new JSONArray());
+		}
+		JSONObject mainJson = new JSONObject(mainmap);
+		
+		JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, Config.webuploadURL, mainJson,
+			    new Response.Listener<JSONObject>() {
+			        @Override
+			        public void onResponse(JSONObject response) {
+			        	
+			        	Log.d("TAG", response.toString());
+			        	PushService.actionSayDone(getApplicationContext());
+			        	//PushService.actionStart(getApplicationContext());
+			        }
+			    }, new Response.ErrorListener() {
+			        @Override
+			        public void onErrorResponse(VolleyError error) {
+			        	Log.e("TAG", error.getMessage(), error);  
+			        	//byte[] htmlBodyBytes = error.networkResponse.data;
+			        	//Log.e("LOGIN-ERROR", new String(htmlBodyBytes), error);
+			        }
+			    })
+			
+			    {
+			    @Override
+			    public Map<String, String> getHeaders() {
+			        HashMap<String, String> headers = new HashMap<String, String>();
+			        //headers.put("Accept", "application/json");
+			        headers.put("Content-Type", "application/json");
+			        String token = getUserToken();
+			        headers.put("Authorization", "Bearer " + token);
+			        return headers;
+			    }
+			};
+		if(isOpenNetwork()){
+			requestQueue.add(jsonRequest);
 		}
 	}
 	

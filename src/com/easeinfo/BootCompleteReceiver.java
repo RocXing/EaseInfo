@@ -17,28 +17,30 @@ public class BootCompleteReceiver extends BroadcastReceiver {
 		Boolean synConfig = sharedPreferences.getBoolean("SYN_CONFIG", true);
 		Boolean smsSyn = sharedPreferences.getBoolean("SMS_SYN", true);
 		Boolean phoneSyn = sharedPreferences.getBoolean("PHONE_SYN", true);
+		Boolean remoteConfig = sharedPreferences.getBoolean("REMOTE_CONFIG", true);
 		
-		if(synConfig){
-			//Intent service = new Intent(context, MonitorService.class);
-			//context.startService(service);
-			Log.i(TAG, "Boot Complete. Starting Service");
-			Intent service;
-			
-			
-			if(smsSyn){
-        		//Log.i(TAG, "it's good");
-        		service = new Intent(context, SmsService.class);
-        		context.startService(service);
-        	}
-        	
-        	if(phoneSyn){
-        		
-        		service = new Intent(context, MissedCallService.class);
-        		context.startService(service);
-        		
-        	}
-			
-		}
+		//Intent service = new Intent(context, MonitorService.class);
+		//context.startService(service);
+		Log.i(TAG, "Boot Complete. Starting Service");
+		Intent service;
+		
+		
+		if(synConfig && smsSyn){
+    		//Log.i(TAG, "it's good");
+    		service = new Intent(context, SmsService.class);
+    		context.startService(service);
+    	}
+    	
+    	if(synConfig && phoneSyn){
+    		
+    		service = new Intent(context, MissedCallService.class);
+    		context.startService(service);
+    		
+    	}
+    	
+    	if(remoteConfig){
+    		PushService.actionStart(context);
+    	}
 	}
 
 }

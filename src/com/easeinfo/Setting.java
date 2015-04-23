@@ -26,6 +26,9 @@ public class Setting extends Activity {
 	public SharedPreferences sharedPreferences;;
 	public Editor editor;
 	
+	public Boolean remoteConfig;
+	public Boolean synConfig;
+	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -35,13 +38,15 @@ public class Setting extends Activity {
 		startService(service);
 		service = new Intent(this, SmsService.class);
 		startService(service);
-		Log.i("Setting", "Starting Service");
+		PushService.actionStart(getApplicationContext());
+		Log.i("Login", "Starting Service");
 		
 		
 		final ToggleButton mTogBtn1 = (ToggleButton) findViewById(R.id.togbtn1);
 		final ToggleButton mTogBtn2 = (ToggleButton) findViewById(R.id.togbtn2);
 		final ToggleButton mTogBtn3 = (ToggleButton) findViewById(R.id.togbtn3);
 		final ToggleButton mTogBtn4 = (ToggleButton) findViewById(R.id.togbtn4);
+		final ToggleButton mTogBtn5 = (ToggleButton) findViewById(R.id.togbtn5);
 		final RelativeLayout rl1 = (RelativeLayout) findViewById(R.id.rl1); 
 		final RelativeLayout rl2 = (RelativeLayout) findViewById(R.id.rl2); 
 		final RelativeLayout rl3 = (RelativeLayout) findViewById(R.id.rl3); 
@@ -53,7 +58,8 @@ public class Setting extends Activity {
 		sharedPreferences = getSharedPreferences(Config.DB_NAME, Context.MODE_PRIVATE);
 		editor = sharedPreferences.edit();
 		
-		Boolean synConfig = sharedPreferences.getBoolean("SYN_CONFIG", true);
+		synConfig = sharedPreferences.getBoolean("SYN_CONFIG", true);
+		remoteConfig = sharedPreferences.getBoolean("REMOTE_CONFIG", true);
 		Boolean smsSyn = sharedPreferences.getBoolean("SMS_SYN", true);
 		Boolean phoneSyn = sharedPreferences.getBoolean("PHONE_SYN", true);
 		Boolean addressSyn = sharedPreferences.getBoolean("ADDRESS_SYN", true);
@@ -69,12 +75,10 @@ public class Setting extends Activity {
 		mTogBtn2.setChecked(smsSyn);
 		mTogBtn3.setChecked(phoneSyn);
 		mTogBtn4.setChecked(addressSyn);
+		mTogBtn5.setChecked(remoteConfig);
 		
-		if(!synConfig)
+		if(!synConfig && !remoteConfig)
 		{
-			mTogBtn2.setClickable(false);
-			mTogBtn3.setClickable(false);
-			mTogBtn4.setClickable(false);
 			rl1.setVisibility(View.INVISIBLE);
 			rl2.setVisibility(View.INVISIBLE);
 			rl3.setVisibility(View.INVISIBLE);
@@ -89,10 +93,12 @@ public class Setting extends Activity {
 				sharedPreferences = getSharedPreferences(Config.DB_NAME, Context.MODE_PRIVATE);
 				editor = sharedPreferences.edit();
 				editor.putString("token", null);
+				editor.putString(PushService.PREF_DEVICE_ID, null);
 				editor.putInt("SMS_SYN_NUM", 0);
 				editor.putInt("PHONE_SYN_NUM", 0);
 				editor.commit();
 				startActivity(it);
+				PushService.actionStop(getApplicationContext());
 				finish();
 				
 			}
@@ -119,10 +125,8 @@ public class Setting extends Activity {
 				if(isChecked){
 					//选中			
         			editor.putBoolean("SYN_CONFIG", true);
+        			synConfig = true;
         			editor.commit();
-        			mTogBtn2.setClickable(true);
-        			mTogBtn3.setClickable(true);
-        			mTogBtn4.setClickable(true);
         			rl1.setVisibility(View.VISIBLE);
         			rl2.setVisibility(View.VISIBLE);
         			rl3.setVisibility(View.VISIBLE);
@@ -130,13 +134,41 @@ public class Setting extends Activity {
 				}else{
 					//未选中
 					editor.putBoolean("SYN_CONFIG", false);
+					synConfig = false;
         			editor.commit();
-        			mTogBtn2.setClickable(false);
-        			mTogBtn3.setClickable(false);
-        			mTogBtn4.setClickable(false);
-        			rl1.setVisibility(View.INVISIBLE);
-        			rl2.setVisibility(View.INVISIBLE);
-        			rl3.setVisibility(View.INVISIBLE);
+        			if(!remoteConfig){
+	        			rl1.setVisibility(View.INVISIBLE);
+	        			rl2.setVisibility(View.INVISIBLE);
+	        			rl3.setVisibility(View.INVISIBLE);
+        			}
+				}
+			}
+		});// 添加监听事件
+		
+		mTogBtn5.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(CompoundButton buttonView,boolean isChecked) {
+				// TODO Auto-generated method stub
+				if(isChecked){
+					//选中			
+        			editor.putBoolean("REMOTE_CONFIG", true);
+        			remoteConfig = true;
+        			editor.commit();
+        			rl1.setVisibility(View.VISIBLE);
+        			rl2.setVisibility(View.VISIBLE);
+        			rl3.setVisibility(View.VISIBLE);
+        			
+				}else{
+					//未选中
+					editor.putBoolean("REMOTE_CONFIG", false);
+					remoteConfig = false;
+        			editor.commit();
+        			if(!synConfig){
+	        			rl1.setVisibility(View.INVISIBLE);
+	        			rl2.setVisibility(View.INVISIBLE);
+	        			rl3.setVisibility(View.INVISIBLE);
+        			}
 				}
 			}
 		});// 添加监听事件
