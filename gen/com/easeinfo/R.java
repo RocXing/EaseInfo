@@ -270,7 +270,7 @@ containing a value of this type.
         public static final int toggle_btn_unchecked=0x7f020020;
     }
     public static final class id {
-        public static final int action_settings=0x7f090043;
+        public static final int action_settings=0x7f090044;
         public static final int addresssyn=0x7f090022;
         public static final int brl=0x7f090021;
         public static final int btnOne=0x7f09002a;
@@ -329,6 +329,7 @@ containing a value of this type.
         public static final int thumbnailOne=0x7f090033;
         public static final int thumbnailThree=0x7f090035;
         public static final int thumbnailTwo=0x7f090034;
+        public static final int timePicker1=0x7f090043;
         public static final int title=0x7f090000;
         public static final int togbtn1=0x7f090010;
         public static final int togbtn2=0x7f090018;
@@ -360,6 +361,7 @@ containing a value of this type.
         public static final int row_title=0x7f030011;
         public static final int row_title_and_subtitle=0x7f030012;
         public static final int row_two_columns=0x7f030013;
+        public static final int view_timer=0x7f030014;
     }
     public static final class menu {
         public static final int main=0x7f080000;

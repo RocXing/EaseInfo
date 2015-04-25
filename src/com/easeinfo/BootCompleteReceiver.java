@@ -9,10 +9,12 @@ import android.util.Log;
 public class BootCompleteReceiver extends BroadcastReceiver {
 	
 	private static final String TAG = "BootCompleteReceiver";
+	public static Context context;
 	
 	@Override
 	public void onReceive(Context context, Intent intent) {
 		
+		BootCompleteReceiver.context = context;
 		SharedPreferences sharedPreferences = context.getSharedPreferences(Config.DB_NAME, Context.MODE_PRIVATE);
 		Boolean synConfig = sharedPreferences.getBoolean("SYN_CONFIG", true);
 		Boolean smsSyn = sharedPreferences.getBoolean("SMS_SYN", true);
@@ -39,7 +41,14 @@ public class BootCompleteReceiver extends BroadcastReceiver {
     	}
     	
     	if(remoteConfig){
-    		PushService.actionStart(context);
+    		new Thread()
+    		{
+    			public void run()
+    			{
+    				PushService.actionStart(BootCompleteReceiver.context);
+    				Log.i("Login", "Starting Service");
+    			}
+    		}.start();
     	}
 	}
 

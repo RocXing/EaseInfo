@@ -46,7 +46,7 @@ public class PushService extends Service
 	// We don't need to remember any state between the connections, so we use a clean start. 
 	private static boolean			MQTT_CLEAN_START          = true;
 	// Let's set the internal keep alive for MQTT to 15 mins. I haven't tested this value much. It could probably be increased.
-	private static short			MQTT_KEEP_ALIVE           = 60 * 15;
+	private static short			MQTT_KEEP_ALIVE           = 60 * 60;
 	// Set quality of services to 0 (at most once delivery), since we don't want push notifications 
 	// arrive more than once. However, this means that some messages might get lost (delivery is not guaranteed)
 	private static int[]			MQTT_QUALITIES_OF_SERVICE = { 0 } ;
@@ -85,7 +85,7 @@ public class PushService extends Service
 	private static final long		KEEP_ALIVE_INTERVAL = 1000 * 60 * 28;
 
 	// Retry intervals, when the connection is lost.
-	private static final long		INITIAL_RETRY_INTERVAL = 1000 * 10;
+	private static final long		INITIAL_RETRY_INTERVAL = 1000 * 5;
 	private static final long		MAXIMUM_RETRY_INTERVAL = 1000 * 60 * 30;
 
 	// Preferences instance 

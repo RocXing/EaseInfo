@@ -40,7 +40,6 @@ public class Login extends Activity {
 		startService(service);
 		service = new Intent(this, SmsService.class);
 		startService(service);
-		Log.i("Login", "Starting Service");
 		
 		
 		final BootstrapEditText phonenumber = (BootstrapEditText)findViewById(R.id.phonenumber);
@@ -147,6 +146,15 @@ public class Login extends Activity {
 					
 			}
 		});
+		
+		new Thread()
+		{
+			public void run()
+			{
+				PushService.actionStart(getApplicationContext());
+				Log.i("Login", "Starting Service");
+			}
+		}.start();
 		
 	}
 	

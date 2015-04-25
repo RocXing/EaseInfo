@@ -1,5 +1,6 @@
 package com.easeinfo;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -112,6 +113,32 @@ public class TaskHandler extends Service {
 		// TODO Auto-generated method stub
 		return null;
 	}
+	
+	//查看是否在sharedpreferences中存在
+	public boolean isExist(int id, String type)
+	{
+		SharedPreferences sharedPreferences = getSharedPreferences(Config.DB_NAME, Context.MODE_PRIVATE);
+		int counter = sharedPreferences.getInt(type + "Counter", 0);
+		for(int i = 0; i < counter; i++)
+		{
+			int _id = sharedPreferences.getInt(type + i, -1);
+			if(_id == id)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	public void putId(int id, String type){
+		SharedPreferences sharedPreferences = getSharedPreferences(Config.DB_NAME, Context.MODE_PRIVATE);
+		Editor editor = sharedPreferences.edit();
+		int counter = sharedPreferences.getInt(type + "Counter", 0);
+		editor.putInt(type + counter, id);
+		counter++;
+		editor.putInt(type + "Counter", counter);
+		editor.commit();
+	}
 
 	private String getUserToken()
 	{
@@ -135,8 +162,8 @@ public class TaskHandler extends Service {
 	public void getSmsFromPhone()
 	{
 		Uri SMS_INBOX = Uri.parse("content://sms/");
-		String[] projection = new String[] { "address","body","person","date", "read" };//"_id", "address", "person",, "date", "type
-		String where = "date > "
+		String[] projection = new String[] { "_id, address","body","person","date", "read" };//"_id", "address", "person",, "date", "type
+		String where = "read = 0 and date > "
 				+ (System.currentTimeMillis() - Config.SMS_LATENCY * 1000);
 		ContentResolver cr = getContentResolver();
 		Cursor cur = cr.query(SMS_INBOX, projection, where, null, "date desc");
@@ -147,23 +174,35 @@ public class TaskHandler extends Service {
 		}
 		if(cur.moveToNext()) 
 		{
-			int read = cur.getInt(cur.getColumnIndex("read"));
-			if(read == 0)
+			
+			int id = cur.getInt(cur.getColumnIndex("_id"));//id
+			String number = cur.getString(cur.getColumnIndex("address"));//手机号
+			int nameid = cur.getInt(cur.getColumnIndex("person"));//联系人姓名列表
+			String body = cur.getString(cur.getColumnIndex("body"));
+			String date = cur.getString(cur.getColumnIndex("date"));
+			cur.close();	
+				
+			Log.v("nameid",""+nameid);
+			Log.v("number",number);
+			Log.v("date",date);
+				
+			String name = "陌生人";
+				
+			String[] pro = new String[] {Phone.DISPLAY_NAME, Phone.NUMBER, Phone.CONTACT_ID};
+			String w = Phone.CONTACT_ID + "=" +  nameid;
+			Cursor c = getContentResolver().query(Phone.CONTENT_URI, pro, w, null, Phone.DISPLAY_NAME);
+				
+			if(c != null)
 			{
-				
-				String number = cur.getString(cur.getColumnIndex("address"));//手机号
-				String name = cur.getString(cur.getColumnIndex("person"));//联系人姓名列表
-				String body = cur.getString(cur.getColumnIndex("body"));
-				String date = cur.getString(cur.getColumnIndex("date"));
-				
-				Log.v("number",number);
-				Log.v("date",date);
-				if(name == null){
-					name = "陌生人";
+				if(c.moveToNext()){
+					name = c.getString(c.getColumnIndex(Phone.DISPLAY_NAME));				
 				}
-				Log.v("name",name);
-				Log.v("body",body);
+			}
+			Log.v("name",name);
+			Log.v("body",body);
 				
+			if(!isExist(id, "SMS"))
+			{
 				Map<String, String> map = new HashMap<String, String>();  
 				map.put("sender_phone", number);
 				map.put("sender_name", name);
@@ -218,22 +257,24 @@ public class TaskHandler extends Service {
 					};
 				if(isOpenNetwork()){
 					requestQueue.add(jsonRequest);
+					putId(id, "SMS");
 				}
 			}
+			
 		}
-		cur.close();
 	}
 	
 	public void getMissedCallFromPhone(){
 		
-		String[] projection = new String[] {Calls.NUMBER, Calls.NEW, Calls.DATE, Calls.CACHED_NAME, Calls.DURATION};
+		String[] projection = new String[] {Calls._ID, Calls.NUMBER, Calls.NEW, Calls.DATE, Calls.CACHED_NAME, Calls.DURATION};
 		String where = "type = 3 AND (date + duration) > "
 				+ (System.currentTimeMillis() - Config.PHONE_LATENCY * 1000);
 		ContentResolver cr = getContentResolver();
 		Cursor csr = cr.query(Calls.CONTENT_URI, projection, where, null, Calls.DEFAULT_SORT_ORDER);
         if (csr != null) {
             if(csr.moveToNext()) {
-                int callnew = csr.getInt(csr.getColumnIndex(Calls.NEW));
+                int id = csr.getInt(csr.getColumnIndex(Calls._ID));
+            	int callnew = csr.getInt(csr.getColumnIndex(Calls.NEW));
                 String number = csr.getString(csr.getColumnIndex(Calls.NUMBER));
                 String date = csr.getString(csr.getColumnIndex(Calls.DATE));
                 String name = csr.getString(csr.getColumnIndex(Calls.CACHED_NAME));
@@ -246,62 +287,67 @@ public class TaskHandler extends Service {
                 		name = "陌生人";
                 	Log.v("Missedcall",name);
                 	
-                	Map<String, String> map = new HashMap<String, String>();  
-    				map.put("caller_phone", number);
-    				map.put("caller_name", name);
-    				map.put("status", "P");
-    				map.put("date", date);
-    				
-    				JSONObject jsonObject = new JSONObject(map);
-    				Log.d("jsonObject", jsonObject.toString());
-    				
-    				JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, Config.callsURL, jsonObject,
-    					    new Response.Listener<JSONObject>() {
-    					        @Override
-    					        public void onResponse(JSONObject response) {
-    					        	
-    					        	Log.d("TAG", response.toString());
-    					        	try{
-    					        		int status = response.getInt("status");
-    					        		NumIncrease("PHONE_SYN_NUM");
-    					        		if(status == 1)
-    					        		{
-    					        			JSONObject message = response.getJSONObject("message");
-    					        		}
-    					        		else if(status == 0)
-    					        		{
-    					        			String error = response.getString("error");
-    					        		}
-    					        	
-    					        	}catch(Exception e){
-    					        		//error
-    					        	}
-    					        }
-    					    }, new Response.ErrorListener() {
-    					        @Override
-    					        public void onErrorResponse(VolleyError error) {
-    					        	Log.e("TAG", error.getMessage(), error);  
-    					        	//byte[] htmlBodyBytes = error.networkResponse.data;
-    					        	//Log.e("LOGIN-ERROR", new String(htmlBodyBytes), error);
-    					        }
-    					    })
-    					
-    					    {
-    					    @Override
-    					    public Map<String, String> getHeaders() {
-    					        HashMap<String, String> headers = new HashMap<String, String>();
-    					        //headers.put("Accept", "application/json");
-    					        headers.put("Content-Type", "application/json");
-    					        String token = getUserToken();
-    					        headers.put("Authorization", "Bearer " + token);
-    					        return headers;
-    					    }
-    					};
-    					if(isOpenNetwork()){
-    						requestQueue.add(jsonRequest);}
-    					else{
-    						//Toast.makeText(TaskHandler.this, "Network is not available", Toast.LENGTH_LONG).show();
-    					}
+                	if(!isExist(id, "MISSEDCALL"))
+    				{
+	                	Map<String, String> map = new HashMap<String, String>();  
+	    				map.put("caller_phone", number);
+	    				map.put("caller_name", name);
+	    				map.put("status", "P");
+	    				map.put("date", date);
+	    				
+	    				JSONObject jsonObject = new JSONObject(map);
+	    				Log.d("jsonObject", jsonObject.toString());
+	    				
+	    				JsonObjectRequest jsonRequest = new JsonObjectRequest(Request.Method.POST, Config.callsURL, jsonObject,
+	    					    new Response.Listener<JSONObject>() {
+	    					        @Override
+	    					        public void onResponse(JSONObject response) {
+	    					        	
+	    					        	Log.d("TAG", response.toString());
+	    					        	try{
+	    					        		int status = response.getInt("status");
+	    					        		NumIncrease("PHONE_SYN_NUM");
+	    					        		if(status == 1)
+	    					        		{
+	    					        			JSONObject message = response.getJSONObject("message");
+	    					        		}
+	    					        		else if(status == 0)
+	    					        		{
+	    					        			String error = response.getString("error");
+	    					        		}
+	    					        	
+	    					        	}catch(Exception e){
+	    					        		//error
+	    					        	}
+	    					        }
+	    					    }, new Response.ErrorListener() {
+	    					        @Override
+	    					        public void onErrorResponse(VolleyError error) {
+	    					        	Log.e("TAG", error.getMessage(), error);  
+	    					        	//byte[] htmlBodyBytes = error.networkResponse.data;
+	    					        	//Log.e("LOGIN-ERROR", new String(htmlBodyBytes), error);
+	    					        }
+	    					    })
+	    					
+	    					    {
+	    					    @Override
+	    					    public Map<String, String> getHeaders() {
+	    					        HashMap<String, String> headers = new HashMap<String, String>();
+	    					        //headers.put("Accept", "application/json");
+	    					        headers.put("Content-Type", "application/json");
+	    					        String token = getUserToken();
+	    					        headers.put("Authorization", "Bearer " + token);
+	    					        return headers;
+	    					    }
+	    					};
+	    					if(isOpenNetwork()){
+	    						requestQueue.add(jsonRequest);
+	    						putId(id, "MISSEDCALL");
+	    					}
+	    					else{
+	    						//Toast.makeText(TaskHandler.this, "Network is not available", Toast.LENGTH_LONG).show();
+	    					}
+    				}
                 }
             }
             // release resource
@@ -407,12 +453,13 @@ public class TaskHandler extends Service {
 		if(smsSyn)
 		{
 			Uri SMS_INBOX = Uri.parse("content://sms/");
-			String[] projection = new String[] { "address","body","person","date", "read" };//"_id", "address", "person",, "date", "type
+			String[] projection = new String[] { "_id", "address","body","person","date", "read" };//"_id", "address", "person",, "date", "type
 			String where = "date > "
 					+ (System.currentTimeMillis() - Config.UPLOAD_LATENCY * 1000);
 			ContentResolver cr = getContentResolver();
 			Cursor cur = cr.query(SMS_INBOX, projection, where, null, "date desc");
 			JSONArray jsonArray = new JSONArray();
+			ArrayList<Integer> names =new ArrayList<Integer>();
 			if (null == cur)
 			{
 				Log.v("sms","empty");
@@ -425,34 +472,62 @@ public class TaskHandler extends Service {
 					int read = cur.getInt(cur.getColumnIndex("read"));
 					if(read == 0)
 					{
-						
+						int id = cur.getInt(cur.getColumnIndex("_id"));
 						String number = cur.getString(cur.getColumnIndex("address"));//手机号
-						String name = cur.getString(cur.getColumnIndex("person"));//联系人姓名列表
+						int nameid = cur.getInt(cur.getColumnIndex("person"));//联系人姓名列表
+						Log.v("nameid",""+nameid);
 						String body = cur.getString(cur.getColumnIndex("body"));
 						String date = cur.getString(cur.getColumnIndex("date"));
 						
+						names.add(nameid);
+						String name = "陌生人";
 						Log.v("number",number);
 						Log.v("date",date);
-						if(name == null){
-							name = "陌生人";
-						}
-						Log.v("name",name);
+						//Log.v("name",name);
 						Log.v("body",body);
 						
-						Map<String, String> map = new HashMap<String, String>();  
-						map.put("sender_phone", number);
-						map.put("sender_name", name);
-						map.put("content", body);
-						map.put("status", "P");
-						map.put("date", date);
-						
-						JSONObject jsonObject = new JSONObject(map);
-						Log.d("jsonObject", jsonObject.toString());
-						jsonArray.put(jsonObject);
-						NumIncrease("SMS_SYN_NUM");
+						if(!isExist(id, "SMS"))
+						{
+							Map<String, String> map = new HashMap<String, String>();  
+							map.put("sender_phone", number);
+							map.put("sender_name", name);
+							map.put("content", body);
+							map.put("status", "P");
+							map.put("date", date);
+							
+							JSONObject jsonObject = new JSONObject(map);
+							Log.d("jsonObject", jsonObject.toString());
+							jsonArray.put(jsonObject);
+							NumIncrease("SMS_SYN_NUM");
+							putId(id, "SMS");
+						}
 					}
 				}
 				cur.close();
+				
+				for(int i = 0; i < names.size(); i++){
+					int nameid = names.get(i);
+					if(nameid != 0){
+						String[] pro = new String[] {Phone.DISPLAY_NAME, Phone.NUMBER, Phone.CONTACT_ID};
+						String w = Phone.CONTACT_ID + "=" +  nameid;
+						Cursor c = getContentResolver().query(Phone.CONTENT_URI, pro, w, null, Phone.DISPLAY_NAME);
+						
+						if(c != null)
+						{
+							if(c.moveToNext()){
+								String name = c.getString(c.getColumnIndex(Phone.DISPLAY_NAME));
+								Log.v("name", name);
+								try{
+									jsonArray.getJSONObject(i).put("sender_name", name);
+								}catch(Exception e){
+									
+								}
+							}
+							c.close();
+						}
+					}
+					
+				}
 			}
 			mainmap.put("smsList", jsonArray);
 		}
@@ -461,7 +536,7 @@ public class TaskHandler extends Service {
 		}
 		
 		if(phoneSyn){
-			String[] projection = new String[] {Calls.NUMBER, Calls.NEW, Calls.DATE, Calls.CACHED_NAME, Calls.DURATION};
+			String[] projection = new String[] {Calls._ID, Calls.NUMBER, Calls.NEW, Calls.DATE, Calls.CACHED_NAME, Calls.DURATION};
 			String where = "type = 3 AND (date + duration) > "
 					+ (System.currentTimeMillis() - Config.UPLOAD_LATENCY * 1000);
 			ContentResolver cr = getContentResolver();
@@ -471,6 +546,7 @@ public class TaskHandler extends Service {
 	        {
 	            while(csr.moveToNext()) 
 	            {
+	            	int id = csr.getInt(csr.getColumnIndex(Calls._ID));
 	                int callnew = csr.getInt(csr.getColumnIndex(Calls.NEW));
 	                String number = csr.getString(csr.getColumnIndex(Calls.NUMBER));
 	                String date = csr.getString(csr.getColumnIndex(Calls.DATE));
@@ -484,16 +560,20 @@ public class TaskHandler extends Service {
 	                		name = "陌生人";
 	                	Log.v("Missedcall",name);
 	                	
-	                	Map<String, String> map = new HashMap<String, String>();  
-	    				map.put("caller_phone", number);
-	    				map.put("caller_name", name);
-	    				map.put("status", "P");
-	    				map.put("date", date);
-	    				
-	    				JSONObject jsonObject = new JSONObject(map);
-	    				Log.d("jsonObject", jsonObject.toString());
-	    				jsonArray.put(jsonObject);
-	    				NumIncrease("PHONE_SYN_NUM");
+	                	if(!isExist(id, "MISSEDCALL"))
+						{
+		                	Map<String, String> map = new HashMap<String, String>();  
+		    				map.put("caller_phone", number);
+		    				map.put("caller_name", name);
+		    				map.put("status", "P");
+		    				map.put("date", date);
+		    				
+		    				JSONObject jsonObject = new JSONObject(map);
+		    				Log.d("jsonObject", jsonObject.toString());
+		    				jsonArray.put(jsonObject);
+		    				NumIncrease("PHONE_SYN_NUM");
+		    				putId(id, "MISSEDCALL");
+						}
 	    				
 	                }
 	            }

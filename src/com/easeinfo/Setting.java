@@ -38,8 +38,7 @@ public class Setting extends Activity {
 		startService(service);
 		service = new Intent(this, SmsService.class);
 		startService(service);
-		PushService.actionStart(getApplicationContext());
-		Log.i("Login", "Starting Service");
+		
 		
 		
 		final ToggleButton mTogBtn1 = (ToggleButton) findViewById(R.id.togbtn1);
@@ -96,6 +95,7 @@ public class Setting extends Activity {
 				editor.putString(PushService.PREF_DEVICE_ID, null);
 				editor.putInt("SMS_SYN_NUM", 0);
 				editor.putInt("PHONE_SYN_NUM", 0);
+				editor.clear();
 				editor.commit();
 				startActivity(it);
 				PushService.actionStop(getApplicationContext());
@@ -224,6 +224,14 @@ public class Setting extends Activity {
 			}
 		});// Ìí¼Ó¼àÌýÊÂ¼þ
 		
+		new Thread()
+		{
+			public void run()
+			{
+				PushService.actionStart(getApplicationContext());
+				Log.i("Login", "Starting Service");
+			}
+		}.start();
 	}
 
 }
